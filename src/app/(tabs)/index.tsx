@@ -1,65 +1,135 @@
 import Header from '@/src/components/Header';
+import { ProductCard } from '@/src/components/ProductCard';
 import QuickAccess from '@/src/components/QuickAccess';
-import { theme } from '@/src/theme'; // Pastikan path ini benar
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Search from '@/src/components/Search';
+import { useDebounce } from '@/src/hooks/useDebounce';
+import { useHomeScreen } from '@/src/hooks/useHomeScreen';
+import { theme } from '@/src/theme';
+import { Product } from '@/src/types';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useMemo } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-    return (
-        <SafeAreaView style={styles.container}>
-            <Header />
+    const router = useRouter();
+    const {
+        user,
+        activeOrders,
+        searchText,
+        setSearchText,
+        getFilteredProducts,
+        quickAccessItems,
+        deliveryEstimation,
+        isLoading,
+        error,
+        onRefresh,
+    } = useHomeScreen();
 
-            <Image
-                source={require('../../assets/images/banner.png')}
-                alt="Banner"
-                style={styles.bannerImg}
+    // Debounce 300ms — hasil pencarian hanya muncul setelah user berhenti mengetik
+    const debouncedSearch = useDebounce(searchText, 300);
+
+    const filteredProducts = useMemo(
+        () => getFilteredProducts(debouncedSearch),
+        [debouncedSearch, getFilteredProducts]
+    );
+
+    const handleProductPress = (product: Product) => {
+        (router as any).push(`/product/${product.id}`);
+    };
+
+    const renderHeader = () => (
+        <View>
+            <Header userName={user.fullname} greeting="Selamat Datang" />
+
+            <Search
+                value={searchText}
+                onChange={setSearchText}
+                placeholder="Cari menu favorit..."
             />
 
-            <ScrollView
-                style={styles.mainContentOverlay}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Estimasi Pengiriman */}
-                <View style={styles.deliveryEstimationCard}>
-                    <Text style={styles.textWhiteBold}>Estimasi Pengiriman</Text>
-                    <Text style={styles.titleCard}>15 Menit</Text>
-                </View>
+            {/* Estimasi Pengiriman — Dinamis dari Database */}
+            <View style={styles.deliveryEstimationCard}>
+                <Text style={styles.textWhiteBold}>Estimasi Pengiriman</Text>
+                <Text style={styles.titleCard}>{deliveryEstimation} Menit</Text>
+            </View>
 
-                {/* Info Ringkasan */}
-                <View style={styles.statsContainer}>
-                    <View style={styles.activeOrderCard}>
-                        <View style={styles.cardInnerPadding}>
-                            <View style={styles.rowSpaceBetween}>
-                                <Text style={styles.textWhiteBold}>Pesanan Kamu</Text>
-                                <Text style={styles.textWhiteBold}>Total</Text>
-                            </View>
-                            <View>
-
-                                <View style={styles.rowSpaceBetween}>
-                                    <Text style={styles.titleSummary}>Ayam Crispy</Text>
-                                    <Text style={styles.totalSummary}>1</Text>
-                                </View>
-                                <Text style={styles.textCard}>Ayam Crispy (Data) + Nasi</Text>
-                            </View>
-                        </View>
-                    </View>
-
-                    <View style={styles.pointsCard}>
-                        <View style={styles.cardInnerPadding}>
-                            <Text style={styles.textWhiteBold}>Poin Kamu</Text>
-                            <Text style={styles.titleCard}>120</Text>
-                        </View>
-                    </View>
-                </View>
-
-                {/* Quick Access Menu */}
+            {/* Quick Access Menu */}
+            <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>Akses Cepat</Text>
                 <View style={styles.quickAccessContainer}>
-                    <QuickAccess name='Delivery' icon='truck-delivery' urlTo='/delivery' />
-                    <QuickAccess name='Menu' icon='food' urlTo='/menu' />
-                    <QuickAccess name='Promo' icon='tag-multiple' urlTo='/promo' />
-                    <QuickAccess name='Activity' icon='history' urlTo='/activity' />
+                    {quickAccessItems.map((item) => (
+                        <QuickAccess key={item.id} item={item} />
+                    ))}
                 </View>
-            </ScrollView>
+            </View>
+
+            {/* Loading State */}
+            {isLoading && (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                    <Text style={styles.loadingText}>Memuat data...</Text>
+                </View>
+            )}
+
+            {/* Error State */}
+            {error && !isLoading && (
+                <View style={styles.loadingContainer}>
+                    <Ionicons name="cloud-offline-outline" size={48} color={theme.colors.error} />
+                    <Text style={styles.errorText}>{error}</Text>
+                    <TouchableOpacity style={styles.retryButton} onPress={onRefresh}>
+                        <Text style={styles.retryButtonText}>Coba Lagi</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {/* Active Orders */}
+            {activeOrders.length > 0 && (
+                <View style={styles.sectionContainer}>
+                    <Text style={styles.sectionTitle}>Pesanan Aktif</Text>
+                    {activeOrders.map((order) => (
+                        <View key={order.id} style={styles.activeOrderCard}>
+                            <View style={styles.cardInnerPadding}>
+                                <View style={styles.rowSpaceBetween}>
+                                    <Text style={styles.textWhiteBold}>{order.orderName}</Text>
+                                    <Text style={styles.textWhiteBold}>Rp {order.total.toLocaleString('id-ID')}</Text>
+                                </View>
+                                <Text style={styles.textCard}>Status: {order.status}</Text>
+                            </View>
+                        </View>
+                    ))}
+                </View>
+            )}
+
+            {/* Menu Section */}
+            <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>
+                    {searchText ? 'Hasil Pencarian' : 'Menu Populer'}
+                </Text>
+            </View>
+        </View>
+    );
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <FlatList
+                data={filteredProducts}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <ProductCard product={item} onPress={handleProductPress} />
+                )}
+                ListHeaderComponent={renderHeader}
+                ListEmptyComponent={() => (
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>
+                            {'Menu "' + searchText + '" tidak ditemukan.'}
+                        </Text>
+                    </View>
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContent}
+            />
         </SafeAreaView>
     );
 }
@@ -67,86 +137,98 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.backgroundSecondary
+        backgroundColor: theme.colors.background,
     },
-    bannerImg: {
-        width: '100%',
-        height: 300,
-        transform: [{ translateY: -20 }],
-        zIndex: -1
+    loadingContainer: {
+        paddingVertical: theme.spacing.xl,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: theme.spacing.sm,
     },
-
-    // Overlay content
-    mainContentOverlay: {
-        backgroundColor: theme.colors.surface,
-        padding: theme.spacing.lg,
-        borderTopRightRadius: theme.borderRadius.lg,
-        borderTopLeftRadius: theme.borderRadius.lg,
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
+    loadingText: {
+        fontSize: theme.typography.fontSize.sm,
+        color: theme.colors.textSecondary,
     },
-
-    // Cards
+    errorText: {
+        fontSize: theme.typography.fontSize.md,
+        color: theme.colors.textSecondary,
+        textAlign: 'center',
+        marginTop: theme.spacing.sm,
+        paddingHorizontal: theme.spacing.lg,
+    },
+    retryButton: {
+        marginTop: theme.spacing.md,
+        backgroundColor: theme.colors.primary,
+        paddingVertical: theme.spacing.sm,
+        paddingHorizontal: theme.spacing.lg,
+        borderRadius: theme.borderRadius.full,
+    },
+    retryButtonText: {
+        color: theme.colors.textLight,
+        fontWeight: theme.typography.fontWeight.semibold,
+        fontSize: theme.typography.fontSize.md,
+    },
+    listContent: {
+        paddingBottom: theme.spacing.xxl,
+    },
     deliveryEstimationCard: {
         backgroundColor: theme.colors.primary,
         padding: theme.spacing.md,
-        borderRadius: theme.borderRadius.md
+        borderRadius: theme.borderRadius.md,
+        marginHorizontal: theme.spacing.md,
+        marginTop: theme.spacing.sm,
     },
-    statsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: theme.spacing.sm,
-        marginTop: theme.spacing.md
+    sectionContainer: {
+        marginTop: theme.spacing.md,
+        paddingHorizontal: theme.spacing.md,
     },
-    activeOrderCard: {
-        flex: 2,
-        backgroundColor: theme.colors.primary,
-        padding: theme.spacing.md,
-        borderRadius: theme.borderRadius.md
-    },
-    pointsCard: {
-        flex: 1,
-        backgroundColor: theme.colors.primary,
-        padding: theme.spacing.md,
-        borderRadius: theme.borderRadius.md
-    },
-
-    // Utility
-    cardInnerPadding: { gap: theme.spacing.xs },
-    rowSpaceBetween: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+    sectionTitle: {
+        fontSize: theme.typography.fontSize.lg,
+        fontWeight: theme.typography.fontWeight.bold,
+        color: theme.colors.text,
+        marginBottom: theme.spacing.sm,
     },
     quickAccessContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: theme.spacing.md
+        justifyContent: 'space-around',
+        paddingVertical: theme.spacing.sm,
+        paddingBottom: theme.spacing.lg,
     },
-
-    // Typography
+    activeOrderCard: {
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.borderRadius.md,
+        marginBottom: theme.spacing.sm,
+    },
+    cardInnerPadding: {
+        padding: theme.spacing.md,
+        gap: theme.spacing.xs,
+    },
+    rowSpaceBetween: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     textWhiteBold: {
         color: theme.colors.textLight,
-        fontWeight: theme.typography.fontWeight.bold as any
+        fontWeight: theme.typography.fontWeight.bold,
     },
     textCard: {
         color: theme.colors.textLight,
+        fontSize: theme.typography.fontSize.sm,
     },
     titleCard: {
-        fontSize: theme.typography.fontSize.xl,
-        fontWeight: theme.typography.fontWeight.bold as any,
-        color: theme.colors.textLight
+        fontSize: theme.typography.fontSize.xxl,
+        fontWeight: theme.typography.fontWeight.bold,
+        color: theme.colors.textLight,
+        marginTop: theme.spacing.xs,
     },
-    titleSummary: {
-        fontSize: theme.typography.fontSize.lg,
-        fontWeight: theme.typography.fontWeight.bold as any,
-        color: theme.colors.textLight
+    emptyContainer: {
+        paddingVertical: theme.spacing.xl,
+        alignItems: 'center',
     },
-    totalSummary: {
-        fontSize: theme.typography.fontSize.lg,
-        fontWeight: theme.typography.fontWeight.bold as any,
-        color: theme.colors.textLight
+    emptyText: {
+        textAlign: 'center',
+        fontSize: theme.typography.fontSize.md,
+        color: theme.colors.textSecondary,
     },
 });

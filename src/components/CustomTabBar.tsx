@@ -1,37 +1,64 @@
-import { theme } from '@/src/theme'; // Panggil theme kamu
+import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
-export default function CustomTabBar({ state, descriptors, navigation }: any) {
+type RouteName = 'index' | 'menu' | 'history' | 'settings';
+
+type IoniconsName = keyof typeof Ionicons.glyphMap;
+
+const TAB_ICONS: Record<RouteName, { active: IoniconsName; inactive: IoniconsName }> = {
+    index: { active: 'home', inactive: 'home-outline' },
+    menu: { active: 'restaurant', inactive: 'restaurant-outline' },
+    history: { active: 'time', inactive: 'time-outline' },
+    settings: { active: 'settings', inactive: 'settings-outline' },
+};
+
+export default function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     return (
         <View style={styles.tabBarContainer}>
-            {state.routes.map((route: any, index: any) => {
+            {state.routes.map((route, index) => {
                 const isFocused = state.index === index;
+                const { options } = descriptors[route.key];
+                const routeName = route.name as RouteName;
+                const icons = TAB_ICONS[routeName] || { active: 'home', inactive: 'home-outline' };
+                const iconName = isFocused ? icons.active : icons.inactive;
 
                 const onPress = () => {
-                    const event = navigation.emit({ type: 'tabPress', target: route.key });
-                    if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name);
+                    const event = navigation.emit({
+                        type: 'tabPress',
+                        target: route.key,
+                        canPreventDefault: true,
+                    });
+                    if (!isFocused && !event.defaultPrevented) {
+                        navigation.navigate(route.name);
+                    }
                 };
 
-                // Sesuaikan ikon berdasarkan nama route
-                let iconName: any = 'home';
-                if (route.name === 'index') iconName = 'home';
-                else if (route.name === 'menu') iconName = 'restaurant';
-                else if (route.name === 'history') iconName = 'time';
-                else if (route.name === 'settings') iconName = 'settings';
+                const onLongPress = () => {
+                    navigation.emit({
+                        type: 'tabLongPress',
+                        target: route.key,
+                    });
+                };
 
                 return (
                     <TouchableOpacity
-                        key={index}
+                        key={route.key}
+                        accessibilityRole="button"
+                        accessibilityState={isFocused ? { selected: true } : {}}
+                        accessibilityLabel={options.tabBarAccessibilityLabel}
                         onPress={onPress}
+                        onLongPress={onLongPress}
                         style={styles.tabItem}
                     >
                         <Ionicons
-                            name={isFocused ? iconName : `${iconName}-outline`}
+                            name={iconName}
                             size={24}
-                            color={isFocused ? theme.colors.primary : '#A0A0A0'}
+                            color={isFocused ? theme.colors.primary : theme.colors.disabled}
                         />
+                        {isFocused && <View style={styles.activeIndicator} />}
                     </TouchableOpacity>
                 );
             })}
@@ -42,20 +69,26 @@ export default function CustomTabBar({ state, descriptors, navigation }: any) {
 const styles = StyleSheet.create({
     tabBarContainer: {
         flexDirection: 'row',
-        backgroundColor: '#FFFFFF', // Warna background tab bar
-        paddingVertical: 15,
-        position: 'sticky',
-        bottom: 0,
-        // Shadow untuk efek mengambang
+        backgroundColor: theme.colors.surface,
+        paddingVertical: theme.spacing.sm,
+        paddingBottom: theme.spacing.md,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: { width: 0, height: 0 - 4 },
         shadowOpacity: 0.1,
         shadowRadius: 10,
-        elevation: 5,
+        elevation: 10,
     },
     tabItem: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        paddingVertical: theme.spacing.xs,
+    },
+    activeIndicator: {
+        width: 24,
+        height: 3,
+        backgroundColor: theme.colors.primary,
+        borderRadius: 2,
+        marginTop: 4,
     },
 });
