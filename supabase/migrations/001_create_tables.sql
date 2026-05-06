@@ -125,6 +125,13 @@ DROP POLICY IF EXISTS "Categories are viewable by everyone" ON categories;
 CREATE POLICY "Categories are viewable by everyone"
     ON categories FOR SELECT USING (true);
 
+CREATE POLICY "Admin can CRUD categories"
+ON public.categories
+FOR ALL 
+TO authenticated 
+USING (auth.role() = 'authenticated')
+WITH CHECK (auth.role() = 'authenticated');
+
 -- App settings: anyone can read
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Settings are viewable by everyone" ON app_settings;

@@ -1,54 +1,38 @@
 import { theme } from '@/src/theme';
+import { getNotificationStyle } from '@/src/utils/notificationHelper';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-interface Notification {
-    id: string;
-    title: string;
-    message: string;
-    time: string;
-    read: boolean;
-    icon: keyof typeof Ionicons.glyphMap;
-    iconColor: string;
-}
-
-const NOTIFICATIONS: Notification[] = [
-    { id: 'n1', title: 'Pesanan Selesai', message: 'Pesanan ORD001 telah selesai. Nikmati makanan Anda!', time: '2 jam lalu', read: false, icon: 'checkmark-circle', iconColor: theme.colors.success },
-    { id: 'n2', title: 'Poin Ditambahkan', message: 'Anda mendapatkan 18 poin dari pesanan Ayam Geprek.', time: '2 jam lalu', read: false, icon: 'gift', iconColor: theme.colors.secondary },
-    { id: 'n3', title: 'Promo Spesial!', message: 'Diskon 20% untuk semua menu Main Course hari ini!', time: '1 hari lalu', read: true, icon: 'pricetag', iconColor: theme.colors.primary },
-    { id: 'n4', title: 'Pesanan Diproses', message: 'Pesanan ORD003 sedang diproses oleh dapur.', time: '1 hari lalu', read: true, icon: 'time', iconColor: theme.colors.warning },
-    { id: 'n5', title: 'Selamat Datang', message: 'Selamat bergabung di Go Kukuruyuk! Nikmati berbagai menu lezat kami.', time: '3 hari lalu', read: true, icon: 'happy', iconColor: theme.colors.primary },
-];
+import { useNotifications } from '../hooks/useNotification';
 
 export default function NotificationsScreen() {
     const router = useRouter();
+    const { notifications, isLoading, markAsRead } = useNotifications();
 
-    const renderItem = ({ item }: { item: Notification }) => (
-        <TouchableOpacity style={[styles.notificationCard, !item.read && styles.unreadCard]} activeOpacity={0.7}>
-            <View style={[styles.iconContainer, { backgroundColor: item.iconColor + '15' }]}>
-                <Ionicons name={item.icon} size={22} color={item.iconColor} />
-            </View>
-            <View style={styles.content}>
-                <View style={styles.titleRow}>
-                    <Text style={[styles.title, !item.read && styles.unreadTitle]}>{item.title}</Text>
-                    {!item.read && <View style={styles.unreadDot} />}
+    const renderItem = ({ item }: { item: any }) => {
+        const { icon, color } = getNotificationStyle(item.type);
+
+        return (
+            <TouchableOpacity
+                style={[styles.notificationCard, !item.is_read && styles.unreadCard]}
+                onPress={() => !item.is_read && markAsRead(item.id)}
+                activeOpacity={0.7}
+            >
+                <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
+                    <Ionicons name={icon as any} size={22} color={color} />
                 </View>
-                <Text style={styles.message} numberOfLines={2}>{item.message}</Text>
-                <Text style={styles.time}>{item.time}</Text>
-            </View>
-        </TouchableOpacity>
-    );
-
-    const renderHeader = () => (
-        <View style={styles.headerActions}>
-            <Text style={styles.headerCount}>{NOTIFICATIONS.filter(n => !n.read).length} belum dibaca</Text>
-            <TouchableOpacity>
-                <Text style={styles.markAllRead}>Tandai semua dibaca</Text>
+                <View style={styles.content}>
+                    <View style={styles.titleRow}>
+                        <Text style={[styles.title, !item.is_read && styles.unreadTitle]}>{item.title}</Text>
+                        {!item.is_read && <View style={styles.unreadDot} />}
+                    </View>
+                    <Text style={styles.message} numberOfLines={2}>{item.message}</Text>
+                    <Text style={styles.time}>{new Date(item.created_at).toLocaleDateString()}</Text>
+                </View>
             </TouchableOpacity>
-        </View>
-    );
+        );
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -60,17 +44,21 @@ export default function NotificationsScreen() {
                 <View style={{ width: 40 }} />
             </View>
 
-            <FlatList
-                data={NOTIFICATIONS}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                ListHeaderComponent={renderHeader}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-            />
+            {isLoading ? (
+                <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 20 }} />
+            ) : (
+                <FlatList
+                    data={notifications}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderItem}
+                    contentContainerStyle={styles.listContent}
+                    ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Tidak ada notifikasi.</Text>}
+                />
+            )}
         </SafeAreaView>
     );
 }
+// ... (StyleSheet tidak perlu diubah, tetap sama)
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background },

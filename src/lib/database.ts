@@ -108,7 +108,7 @@ export const settingsService = {
 
         if (error || !data) {
             console.error(`Error fetching setting ${key}:`, error);
-            return key === 'delivery_estimation_minutes' ? '15' : null;
+            return key === 'delivery_estimation_minutes' ? '0' : null;
         }
 
         return data.value;

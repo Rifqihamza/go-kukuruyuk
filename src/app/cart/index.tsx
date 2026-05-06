@@ -1,5 +1,5 @@
 import Button from '@/src/components/Button';
-import { useCartStore } from '@/src/store/cartStore';
+import { useCartStore } from '@/src/hooks/useCartStore';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';

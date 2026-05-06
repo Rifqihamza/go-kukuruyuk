@@ -1,10 +1,9 @@
 import Button from '@/src/components/Button';
-import { seedService } from '@/src/lib/database';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SettingRowProps {
@@ -67,35 +66,34 @@ export default function SettingPage() {
     const router = useRouter();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-    const [isSeeding, setIsSeeding] = useState(false);
+    // const [isSeeding, setIsSeeding] = useState(false);
     const user = { fullname: 'Jhon Doe', email: 'jhondoe@gmail.com' };
 
-    const handleSeedData = async () => {
-        Alert.alert(
-            'Seed Data ke Supabase',
-            'Ini akan mengirim semua data menu, kategori, dan setting default ke database Supabase. Lanjutkan?',
-            [
-                { text: 'Batal', style: 'cancel' },
-                {
-                    text: 'Ya, Seed!',
-                    onPress: async () => {
-                        setIsSeeding(true);
-                        const result = await seedService.seedAll();
-                        setIsSeeding(false);
-                        Alert.alert(
-                            result.success ? '✅ Berhasil' : '❌ Gagal',
-                            result.message
-                        );
-                    },
-                },
-            ]
-        );
-    };
+    // const handleSeedData = async () => {
+    //     Alert.alert(
+    //         'Seed Data ke Supabase',
+    //         'Ini akan mengirim semua data menu, kategori, dan setting default ke database Supabase. Lanjutkan?',
+    //         [
+    //             { text: 'Batal', style: 'cancel' },
+    //             {
+    //                 text: 'Ya, Seed!',
+    //                 onPress: async () => {
+    //                     setIsSeeding(true);
+    //                     const result = await seedService.seedAll();
+    //                     setIsSeeding(false);
+    //                     Alert.alert(
+    //                         result.success ? '✅ Berhasil' : '❌ Gagal',
+    //                         result.message
+    //                     );
+    //                 },
+    //             },
+    //         ]
+    //     );
+    // };
 
     const navigateTo = (path: string) => (router as any).push(path);
 
     const handleLogout = () => {
-        // Placeholder for logout logic
     };
 
     return (
@@ -172,7 +170,7 @@ export default function SettingPage() {
                 </View>
 
                 {/* Database Section */}
-                <View style={styles.section}>
+                {/* <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Database</Text>
                     <View style={styles.sectionContent}>
                         <TouchableOpacity
@@ -199,7 +197,7 @@ export default function SettingPage() {
                             )}
                         </TouchableOpacity>
                     </View>
-                </View>
+                </View> */}
 
                 {/* About */}
                 <View style={styles.section}>

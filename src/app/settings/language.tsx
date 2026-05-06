@@ -1,10 +1,9 @@
+import { useAppNavigation } from '@/src/hooks/useAppNavigation';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 const LANGUAGES = [
     { id: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩', isDefault: true },
     { id: 'en', name: 'English', flag: '🇬🇧' },
@@ -13,13 +12,13 @@ const LANGUAGES = [
 ];
 
 export default function LanguageScreen() {
-    const router = useRouter();
+    const { replaceTo } = useAppNavigation();
     const [selected, setSelected] = useState('id');
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <TouchableOpacity onPress={() => replaceTo('../(tabs)/settings')} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.topBarTitle}>Bahasa</Text>

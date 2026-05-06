@@ -13,7 +13,7 @@ export function useHomeScreen() {
     const [searchText, setSearchText] = useState('');
     const [products, setProducts] = useState<Product[]>([]);
     const [activeOrders, setActiveOrders] = useState<Order[]>([]);
-    const [deliveryEstimation, setDeliveryEstimation] = useState('15');
+    const [deliveryEstimation, setDeliveryEstimation] = useState('0');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -35,8 +35,23 @@ export function useHomeScreen() {
             ]);
 
             setProducts(fetchedProducts);
-            setActiveOrders(fetchedOrders.filter(order => order.status === 'Pending'));
-            setDeliveryEstimation(estimation || '15');
+
+            // 1. Filter pesanan yang masih berjalan (Pending atau In Transit)
+            const active = fetchedOrders.filter(order =>
+                (order.status as string) === 'Pending' || (order.status as string) === 'In Transit'
+            );
+
+            setActiveOrders(active);
+
+            // 2. LOGIC BARU: Cek apakah ada pesanan aktif
+            if (active.length > 0) {
+                // Jika ada pesanan, gunakan estimasi dari database
+                setDeliveryEstimation(estimation + ' Menit' || '0 Menit');
+            } else {
+                // Jika tidak ada pesanan, ubah teksnya
+                setDeliveryEstimation('Belum ada pesanan');
+            }
+
         } catch (err: any) {
             console.error('Error loading home data:', err);
             setError('Gagal memuat data. Silakan tarik layar ke bawah untuk refresh.');

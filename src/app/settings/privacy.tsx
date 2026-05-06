@@ -1,16 +1,16 @@
+import { useAppNavigation } from '@/src/hooks/useAppNavigation';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PrivacyScreen() {
-    const router = useRouter();
+    const { replaceTo } = useAppNavigation();
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <TouchableOpacity onPress={() => replaceTo('../(tabs)/settings')} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.topBarTitle}>Kebijakan Privasi</Text>

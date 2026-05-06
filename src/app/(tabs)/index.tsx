@@ -1,14 +1,11 @@
 import Header from '@/src/components/Header';
 import { ProductCard } from '@/src/components/ProductCard';
 import QuickAccess from '@/src/components/QuickAccess';
-import Search from '@/src/components/Search';
-import { useDebounce } from '@/src/hooks/useDebounce';
-import { useHomeScreen } from '@/src/hooks/useHomeScreen';
+import { useHomeScreen } from '@/src/hooks/useHomeScreen'; // Hook ini akan kita update di bawah
 import { theme } from '@/src/theme';
 import { Product } from '@/src/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -17,9 +14,7 @@ export default function HomeScreen() {
     const {
         user,
         activeOrders,
-        searchText,
-        setSearchText,
-        getFilteredProducts,
+        popularProducts, // Mengambil data populer
         quickAccessItems,
         deliveryEstimation,
         isLoading,
@@ -27,35 +22,19 @@ export default function HomeScreen() {
         onRefresh,
     } = useHomeScreen();
 
-    // Debounce 300ms — hasil pencarian hanya muncul setelah user berhenti mengetik
-    const debouncedSearch = useDebounce(searchText, 300);
-
-    const filteredProducts = useMemo(
-        () => getFilteredProducts(debouncedSearch),
-        [debouncedSearch, getFilteredProducts]
-    );
-
     const handleProductPress = (product: Product) => {
-        (router as any).push(`/product/${product.id}`);
+        router.push(`/product/${product.id}` as any);
     };
 
     const renderHeader = () => (
         <View>
             <Header userName={user.fullname} greeting="Selamat Datang" />
 
-            <Search
-                value={searchText}
-                onChange={setSearchText}
-                placeholder="Cari menu favorit..."
-            />
-
-            {/* Estimasi Pengiriman — Dinamis dari Database */}
             <View style={styles.deliveryEstimationCard}>
                 <Text style={styles.textWhiteBold}>Estimasi Pengiriman</Text>
-                <Text style={styles.titleCard}>{deliveryEstimation} Menit</Text>
+                <Text style={styles.titleCard}>{deliveryEstimation}</Text>
             </View>
 
-            {/* Quick Access Menu */}
             <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Akses Cepat</Text>
                 <View style={styles.quickAccessContainer}>
@@ -65,15 +44,11 @@ export default function HomeScreen() {
                 </View>
             </View>
 
-            {/* Loading State */}
+            {/* Error & Loading state */}
             {isLoading && (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text style={styles.loadingText}>Memuat data...</Text>
-                </View>
+                <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 20 }} />
             )}
 
-            {/* Error State */}
             {error && !isLoading && (
                 <View style={styles.loadingContainer}>
                     <Ionicons name="cloud-offline-outline" size={48} color={theme.colors.error} />
@@ -84,7 +59,6 @@ export default function HomeScreen() {
                 </View>
             )}
 
-            {/* Active Orders */}
             {activeOrders.length > 0 && (
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Pesanan Aktif</Text>
@@ -102,11 +76,8 @@ export default function HomeScreen() {
                 </View>
             )}
 
-            {/* Menu Section */}
             <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>
-                    {searchText ? 'Hasil Pencarian' : 'Menu Populer'}
-                </Text>
+                <Text style={styles.sectionTitle}>Menu Populer</Text>
             </View>
         </View>
     );
@@ -114,19 +85,17 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <FlatList
-                data={filteredProducts}
+                data={popularProducts}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <ProductCard product={item} onPress={handleProductPress} />
                 )}
                 ListHeaderComponent={renderHeader}
-                ListEmptyComponent={() => (
+                ListEmptyComponent={!isLoading ? (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>
-                            {'Menu "' + searchText + '" tidak ditemukan.'}
-                        </Text>
+                        <Text style={styles.emptyText}>Tidak ada menu populer saat ini.</Text>
                     </View>
-                )}
+                ) : null}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContent}
             />

@@ -1,9 +1,8 @@
+import { useAppNavigation } from '@/src/hooks/useAppNavigation';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 const FAQ = [
     { q: 'Bagaimana cara memesan?', a: 'Pilih menu favorit Anda, tambahkan ke keranjang, lalu klik "Pesan Sekarang". Ikuti petunjuk pembayaran.' },
     { q: 'Berapa lama estimasi pengiriman?', a: 'Estimasi pengiriman sekitar 15 menit, tergantung lokasi Anda.' },
@@ -12,12 +11,11 @@ const FAQ = [
 ];
 
 export default function HelpScreen() {
-    const router = useRouter();
-
+    const { replaceTo } = useAppNavigation();
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topBar}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <TouchableOpacity onPress={() => replaceTo('../(tabs)/settings')} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.topBarTitle}>Bantuan</Text>

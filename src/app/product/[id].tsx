@@ -1,6 +1,6 @@
 import Button from '@/src/components/Button';
+import { useCartStore } from '@/src/hooks/useCartStore';
 import { productService } from '@/src/lib/database';
-import { useCartStore } from '@/src/store/cartStore';
 import { theme } from '@/src/theme';
 import { Product } from '@/src/types';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,26 +19,27 @@ export default function ProductDetailScreen() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        const loadProduct = async () => {
+            if (!id) return;
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const fetched = await productService.getById(id);
+                setProduct(fetched);
+                if (!fetched) {
+                    setError('Produk tidak ditemukan');
+                }
+            } catch (err: any) {
+                console.error('Error loading product:', err);
+                setError('Gagal memuat detail produk');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         loadProduct();
     }, [id]);
-
-    const loadProduct = async () => {
-        if (!id) return;
-        setIsLoading(true);
-        setError(null);
-        try {
-            const fetched = await productService.getById(id);
-            setProduct(fetched);
-            if (!fetched) {
-                setError('Produk tidak ditemukan');
-            }
-        } catch (err: any) {
-            console.error('Error loading product:', err);
-            setError('Gagal memuat detail produk');
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     if (isLoading) {
         return (

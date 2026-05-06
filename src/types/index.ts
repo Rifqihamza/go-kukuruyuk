@@ -70,11 +70,12 @@ export interface ProductCardProps {
 }
 
 export interface HeaderProps {
-    userName?: string;
+    userName: string;
     greeting?: string;
     onNotificationPress?: () => void;
     onProfilePress?: () => void;
     cartItemCount?: number;
+    hasUnreadNotifications?: boolean; // Tambahkan ini
 }
 
 export interface AuthContextType {

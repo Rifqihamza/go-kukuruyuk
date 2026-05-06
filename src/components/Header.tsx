@@ -2,16 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useCartStore } from '../store/cartStore';
+import { useCartStore } from '../hooks/useCartStore';
 import { theme } from '../theme';
 import { HeaderProps } from '../types';
 
 export default function Header({
-    userName = 'Jhon Doe',
+    userName = '',
     greeting = 'Selamat Datang',
     onNotificationPress,
     onProfilePress,
     cartItemCount,
+    hasUnreadNotifications = false,
 }: HeaderProps) {
     const router = useRouter();
     const { items } = useCartStore();
@@ -49,7 +50,9 @@ export default function Header({
                     activeOpacity={0.7}
                 >
                     <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
-                    <View style={styles.notificationBadge} />
+                    {hasUnreadNotifications && (
+                        <View style={styles.notificationBadge} />
+                    )}
                 </TouchableOpacity>
             </View>
         </View>
