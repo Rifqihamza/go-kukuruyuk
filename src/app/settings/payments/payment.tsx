@@ -1,32 +1,17 @@
+import { useAppNavigation } from '@/src/hooks/useAppNavigation';
 import { theme } from '@/src/theme';
+import { PAYMENT_METHODS, RECENT_TRANSACTIONS, USER_BALANCE } from '@/src/data/mockData';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PaymentPage() {
-    const router = useRouter();
-    const [balance] = useState(75000); // Mock balance
-
-    const navigateBack = () => router.back();
-
-    const paymentMethods = [
-        { id: '1', type: 'Kartu Kredit / Debit', number: '**** **** **** 1234', icon: 'card-outline' },
-        { id: '2', type: 'GoPay', number: '081234567890', icon: 'wallet-outline' },
-        { id: '3', type: 'OVO', number: '081234567890', icon: 'phone-portrait-outline' },
-    ];
-
-    const recentTransactions = [
-        { id: '1', description: 'Top Up Saldo', amount: '+50.000', date: '2026-05-06', type: 'credit' },
-        { id: '2', description: 'Pembayaran Ayam Geprek', amount: '-18.000', date: '2026-05-05', type: 'debit' },
-        { id: '3', description: 'Pembayaran Nasi Goreng', amount: '-22.000', date: '2026-05-04', type: 'debit' },
-    ];
+    const { navigateTo, replaceTo } = useAppNavigation()
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={navigateBack} style={styles.backButton}>
+                <TouchableOpacity onPress={() => replaceTo('../../(tabs)/settings')} style={styles.backButton}>
                     <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Pembayaran</Text>
@@ -40,8 +25,8 @@ export default function PaymentPage() {
                         <Ionicons name="wallet" size={24} color={theme.colors.background} />
                         <Text style={styles.balanceTitle}>Saldo Kamu</Text>
                     </View>
-                    <Text style={styles.balanceAmount}>Rp {balance.toLocaleString('id-ID')}</Text>
-                    <TouchableOpacity style={styles.topUpButton}>
+                    <Text style={styles.balanceAmount}>Rp {USER_BALANCE.toLocaleString('id-ID')}</Text>
+                    <TouchableOpacity style={styles.topUpButton} onPress={() => navigateTo('./topup')}>
                         <Text style={styles.topUpButtonText}>Top Up</Text>
                     </TouchableOpacity>
                 </View>
@@ -50,12 +35,9 @@ export default function PaymentPage() {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Metode Pembayaran</Text>
-                        <TouchableOpacity onPress={() => router.push('/settings/payment/add-method' as any)}>
-                            <Ionicons name="add-circle" size={24} color={theme.colors.primary} />
-                        </TouchableOpacity>
                     </View>
                     <View style={styles.sectionContent}>
-                        {paymentMethods.map((method) => (
+                        {PAYMENT_METHODS.map((method) => (
                             <View key={method.id} style={styles.paymentMethod}>
                                 <View style={styles.methodLeft}>
                                     <Ionicons name={method.icon as any} size={20} color={theme.colors.primary} />
@@ -73,12 +55,12 @@ export default function PaymentPage() {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Transaksi Terakhir</Text>
-                        <TouchableOpacity onPress={() => router.push('/settings/payments/history' as any)}>
+                        <TouchableOpacity onPress={() => navigateTo('./history-payment')}>
                             <Text style={styles.seeAllText}>Lihat Semua</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.sectionContent}>
-                        {recentTransactions.map((transaction) => (
+                        {RECENT_TRANSACTIONS.map((transaction) => (
                             <View key={transaction.id} style={styles.transaction}>
                                 <View style={styles.transactionLeft}>
                                     <View style={[styles.transactionIcon, {
@@ -111,7 +93,7 @@ export default function PaymentPage() {
                     <View style={styles.sectionContent}>
                         <TouchableOpacity
                             style={styles.quickAction}
-                            onPress={() => router.push('./list-payment' as any)}
+                            onPress={() => navigateTo('./list-payment')}
                         >
                             <Ionicons name="card-outline" size={20} color={theme.colors.primary} />
                             <Text style={styles.quickActionText}>Tambah Kartu/E-wallet</Text>
@@ -120,7 +102,7 @@ export default function PaymentPage() {
 
                         <TouchableOpacity
                             style={styles.quickAction}
-                            onPress={() => router.push('/settings/payment/history' as any)}
+                            onPress={() => navigateTo('./history-payment')}
                         >
                             <Ionicons name="time-outline" size={20} color={theme.colors.primary} />
                             <Text style={styles.quickActionText}>Riwayat Transaksi</Text>

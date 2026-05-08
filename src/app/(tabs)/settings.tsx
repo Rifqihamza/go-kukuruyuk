@@ -1,9 +1,9 @@
-import Button from '@/src/components/Button';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useAppNavigation, useRoleAccess } from '@/src/hooks';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SettingRowProps {
@@ -63,14 +63,42 @@ function SettingRow({
 }
 
 export default function SettingPage() {
-    const router = useRouter();
+    const { navigateTo } = useAppNavigation();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-    const user = { fullname: 'Jhon Doe', email: 'jhondoe@gmail.com' };
-    const navigateTo = (path: string) => (router as any).push(path);
+    const { user, signOut } = useAuth();
+    const { canAccessAdminPanel, canAccessMerchantPanel, isAdmin } = useRoleAccess();
 
-    const handleLogout = () => {
-        console.log("✅ Anda Berhasil Keluar")
+    const handleLogout = async () => {
+        // Tampilkan konfirmasi logout
+        Alert.alert(
+            'Konfirmasi Logout',
+            'Apakah Anda yakin ingin keluar?',
+            [
+                {
+                    text: 'Batal',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Logout',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            console.log('Logging out...');
+                            await signOut();
+                            console.log('Logout successful');
+                            // Navigate to login page after successful logout
+                            navigateTo('/(auth)/sign-page');
+                        } catch (error) {
+                            console.error('Logout error:', error);
+                            // Still navigate to login even if logout fails
+                            navigateTo('/(auth)/sign-page');
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
     return (
@@ -97,6 +125,41 @@ export default function SettingPage() {
                     </View>
                 )}
 
+                {/* Admin/Merchant Panel */}
+                {(canAccessAdminPanel() || canAccessMerchantPanel()) && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>
+                            {isAdmin() ? 'Admin Panel' : 'Merchant Panel'}
+                        </Text>
+                        <View style={styles.sectionContent}>
+                            <TouchableOpacity
+                                style={styles.panelButton}
+                                onPress={() => navigateTo(isAdmin() ? '/admin' : '/merchant')}
+                            >
+                                <View style={styles.panelContent}>
+                                    <Ionicons
+                                        name={isAdmin() ? "shield-checkmark" : "storefront"}
+                                        size={24}
+                                        color={theme.colors.primary}
+                                    />
+                                    <View style={styles.panelText}>
+                                        <Text style={styles.panelTitle}>
+                                            {isAdmin() ? 'Buka Admin Panel' : 'Buka Merchant Panel'}
+                                        </Text>
+                                        <Text style={styles.panelDescription}>
+                                            {isAdmin()
+                                                ? 'Kelola sistem dan semua data platform'
+                                                : 'Kelola restoran dan pesanan'
+                                            }
+                                        </Text>
+                                    </View>
+                                </View>
+                                <Ionicons name="chevron-forward" size={20} color={theme.colors.disabled} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )}
+
                 {/* Preferences */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Preferensi</Text>
@@ -119,7 +182,7 @@ export default function SettingPage() {
                             icon="language-outline"
                             label="Bahasa"
                             value="Indonesia"
-                            onPress={() => navigateTo('/settings/language')}
+                            onPress={() => navigateTo('../settings/language')}
                         />
                     </View>
                 </View>
@@ -131,18 +194,23 @@ export default function SettingPage() {
                         <SettingRow
                             icon="person-outline"
                             label="Edit Profil"
-                            onPress={() => navigateTo('/settings/edit-profile')}
+                            onPress={() => navigateTo('../settings/edit-profile')}
                         />
                         <SettingRow
                             icon="lock-closed-outline"
                             label="Keamanan"
                             value="Aktif"
-                            onPress={() => navigateTo('/settings/security')}
+                            onPress={() => navigateTo('../settings/sub-security/security-page')}
                         />
                         <SettingRow
                             icon="card-outline"
                             label="Pembayaran"
-                            onPress={() => navigateTo('/settings/payments/payment')}
+                            onPress={() => navigateTo('../settings/payments/payment')}
+                        />
+                        <SettingRow
+                            icon="bug-outline"
+                            label="Debug Users"
+                            onPress={() => navigateTo('/debug-users')}
                         />
                     </View>
                 </View>
@@ -159,25 +227,24 @@ export default function SettingPage() {
                         <SettingRow
                             icon="document-text-outline"
                             label="Kebijakan Privasi"
-                            onPress={() => navigateTo('/settings/privacy')}
+                            onPress={() => navigateTo('../settings/privacy')}
                         />
                         <SettingRow
                             icon="help-circle-outline"
                             label="Bantuan"
-                            onPress={() => navigateTo('/settings/help')}
+                            onPress={() => navigateTo('../settings/help')}
                         />
                     </View>
                 </View>
 
-                {/* Logout */}
+                {/* Logout - FIXED */}
                 <View style={styles.logoutSection}>
-                    <Button
-                        title="Keluar"
-                        onPress={handleLogout}
-                        variant="outline"
-                        size="lg"
+                    <TouchableOpacity
+                        onPress={handleLogout}  // ← PERBAIKAN: langsung handleLogout, bukan () => handleLogout
                         style={styles.logoutButton}
-                    />
+                    >
+                        <Text style={styles.logoutTitle}>Keluar</Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -326,5 +393,46 @@ const styles = StyleSheet.create({
     },
     logoutButton: {
         width: '100%',
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.md,
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.spacing.md
+    },
+    logoutTitle: {
+        textAlign: 'center',
+        width: '100%',
+        color: theme.colors.background,
+        fontWeight: theme.typography.fontWeight.bold,
+        fontSize: theme.typography.fontSize.lg,
+        textTransform: 'uppercase'
+    },
+    panelButton: {
+        padding: theme.spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    panelContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    panelText: {
+        flex: 1,
+        marginLeft: theme.spacing.sm,
+    },
+    panelTitle: {
+        fontSize: theme.typography.fontSize.md,
+        color: theme.colors.text,
+        fontWeight: theme.typography.fontWeight.medium,
+    },
+    panelDescription: {
+        fontSize: theme.typography.fontSize.sm,
+        color: theme.colors.textSecondary,
+        marginTop: 2,
     },
 });

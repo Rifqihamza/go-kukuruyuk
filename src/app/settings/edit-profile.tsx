@@ -1,24 +1,93 @@
 import Button from '@/src/components/Button';
-import { useAppNavigation } from '@/src/hooks/useAppNavigation';
+import { useUserProfile } from '@/src/hooks/useUserProfile';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EditProfileScreen() {
     const router = useRouter();
-    const { replaceTo } = useAppNavigation();
-    const [fullname, setFullname] = useState('Jhon Doe');
-    const [email, setEmail] = useState('jhondoe@gmail.com');
-    const [phone, setPhone] = useState('08123456789');
-    const [address, setAddress] = useState('Jl. Contoh No. 123');
+    const { profile, loading, error, updateProfile } = useUserProfile();
+
+    const [formData, setFormData] = useState({
+        fullname: '',
+        email: '',
+        phone: '',
+        address: '',
+    });
+    const [saving, setSaving] = useState(false);
+
+    // Isi form dengan data profile
+    useEffect(() => {
+        if (profile) {
+            setFormData({
+                fullname: profile.fullname || '',
+                email: profile.email || '',
+                phone: profile.phone || '',
+                address: profile.address || '',
+            });
+        }
+    }, [profile]);
+
+    const handleSave = async () => {
+        // Validasi
+        if (!formData.fullname.trim()) {
+            Alert.alert('Error', 'Nama lengkap harus diisi');
+            return;
+        }
+        if (!formData.email.trim()) {
+            Alert.alert('Error', 'Email harus diisi');
+            return;
+        }
+        if (!formData.phone.trim()) {
+            Alert.alert('Error', 'Nomor telepon harus diisi');
+            return;
+        }
+
+        setSaving(true);
+        const success = await updateProfile(formData);
+        setSaving(false);
+
+        if (success) {
+            Alert.alert(
+                'Sukses',
+                'Profil berhasil diperbarui',
+                [{ text: 'OK', onPress: () => router.back() }]
+            );
+        } else {
+            Alert.alert('Error', 'Gagal menyimpan perubahan');
+        }
+    };
+
+    if (loading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                    <Text style={styles.loadingText}>Memuat data profil...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    if (error) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={48} color="red" />
+                    <Text style={styles.errorText}>{error}</Text>
+                    <Button title="Coba Lagi" onPress={() => window.location.reload()} />
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topBar}>
-                <TouchableOpacity onPress={() => replaceTo('../(tabs)/settings')} style={styles.backButton}>
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.topBarTitle}>Edit Profil</Text>
@@ -26,7 +95,7 @@ export default function EditProfileScreen() {
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                {/* Avatar */}
+                {/* Avatar Section */}
                 <View style={styles.avatarSection}>
                     <View style={styles.avatar}>
                         <Ionicons name="person" size={48} color={theme.colors.textLight} />
@@ -36,14 +105,14 @@ export default function EditProfileScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Form */}
+                {/* Form Section */}
                 <View style={styles.formSection}>
                     <Text style={styles.fieldLabel}>Nama Lengkap</Text>
                     <View style={styles.inputContainer}>
                         <TextInput
                             style={styles.input}
-                            value={fullname}
-                            onChangeText={setFullname}
+                            value={formData.fullname}
+                            onChangeText={(text) => setFormData(prev => ({ ...prev, fullname: text }))}
                             placeholder="Nama Lengkap"
                             placeholderTextColor={theme.colors.disabled}
                         />
@@ -53,8 +122,8 @@ export default function EditProfileScreen() {
                     <View style={styles.inputContainer}>
                         <TextInput
                             style={styles.input}
-                            value={email}
-                            onChangeText={setEmail}
+                            value={formData.email}
+                            onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
                             placeholder="Email"
                             placeholderTextColor={theme.colors.disabled}
                             keyboardType="email-address"
@@ -66,8 +135,8 @@ export default function EditProfileScreen() {
                     <View style={styles.inputContainer}>
                         <TextInput
                             style={styles.input}
-                            value={phone}
-                            onChangeText={setPhone}
+                            value={formData.phone}
+                            onChangeText={(text) => setFormData(prev => ({ ...prev, phone: text }))}
                             placeholder="No. Telepon"
                             placeholderTextColor={theme.colors.disabled}
                             keyboardType="phone-pad"
@@ -78,8 +147,8 @@ export default function EditProfileScreen() {
                     <View style={styles.inputContainer}>
                         <TextInput
                             style={[styles.input, styles.textArea]}
-                            value={address}
-                            onChangeText={setAddress}
+                            value={formData.address}
+                            onChangeText={(text) => setFormData(prev => ({ ...prev, address: text }))}
                             placeholder="Alamat"
                             placeholderTextColor={theme.colors.disabled}
                             multiline
@@ -88,10 +157,11 @@ export default function EditProfileScreen() {
                     </View>
 
                     <Button
-                        title="Simpan Perubahan"
-                        onPress={() => router.back()}
+                        title={saving ? "Menyimpan..." : "Simpan Perubahan"}
+                        onPress={handleSave}
                         size="lg"
                         style={styles.saveButton}
+                        disabled={saving}
                     />
                 </View>
             </ScrollView>
@@ -186,5 +256,28 @@ const styles = StyleSheet.create({
     saveButton: {
         marginTop: theme.spacing.lg,
         width: '100%',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: theme.spacing.md,
+        fontSize: theme.typography.fontSize.md,
+        color: theme.colors.textSecondary,
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: theme.spacing.lg,
+    },
+    errorText: {
+        marginTop: theme.spacing.md,
+        marginBottom: theme.spacing.lg,
+        fontSize: theme.typography.fontSize.md,
+        color: 'red',
+        textAlign: 'center',
     },
 });

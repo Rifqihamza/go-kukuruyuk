@@ -1,123 +1,17 @@
+import { PROMOTIONS, PROMO_MENUS } from '@/src/data/mockData';
 import { theme } from '@/src/theme';
+import { MenuItem, PromoItem } from '@/src/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-interface PromoItem {
-    id: string;
-    title: string;
-    description: string;
-    discount: string;
-    validUntil: string;
-    image: string;
-    type: 'menu' | 'coupon';
-    category?: string;
-}
-
-interface MenuItem {
-    id: string;
-    name: string;
-    price: number;
-    originalPrice?: number;
-    discount: number;
-    image: string;
-    category: string;
-    description: string;
-}
-
 export default function PromoPage() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<'promotions' | 'menus'>('promotions');
 
     const navigateBack = () => router.back();
-
-    const promotions: PromoItem[] = [
-        {
-            id: '1',
-            title: 'Diskon 50% Ayam Geprek',
-            description: 'Nikmati ayam geprek dengan diskon hingga 50%',
-            discount: '50%',
-            validUntil: '2026-05-31',
-            image: '',
-            type: 'coupon',
-            category: 'Main Course'
-        },
-        {
-            id: '2',
-            title: 'Buy 1 Get 1 Free Es Teh',
-            description: 'Beli 1 es teh, dapatkan 1 es teh gratis',
-            discount: 'Buy 1 Get 1',
-            validUntil: '2026-05-25',
-            image: '',
-            type: 'coupon',
-            category: 'Drinks'
-        },
-        {
-            id: '3',
-            title: 'Diskon 30% untuk Member Baru',
-            description: 'Diskon khusus untuk member baru aplikasi',
-            discount: '30%',
-            validUntil: '2026-06-15',
-            image: '',
-            type: 'coupon',
-            category: 'All'
-        },
-        {
-            id: '4',
-            title: 'Happy Hour 15:00-17:00',
-            description: 'Diskon 25% untuk semua menu selama happy hour',
-            discount: '25%',
-            validUntil: '2026-12-31',
-            image: '',
-            type: 'coupon',
-            category: 'All'
-        }
-    ];
-
-    const promoMenus: MenuItem[] = [
-        {
-            id: '1',
-            name: 'Ayam Geprek Special',
-            price: 13500,
-            originalPrice: 18000,
-            discount: 25,
-            image: '',
-            category: 'Main Course',
-            description: 'Ayam geprek dengan sambal ekstra pedas - DISKON 25%'
-        },
-        {
-            id: '2',
-            name: 'Nasi Goreng Spesial Promo',
-            price: 16500,
-            originalPrice: 22000,
-            discount: 25,
-            image: '',
-            category: 'Main Course',
-            description: 'Nasi goreng spesial dengan topping lengkap - DISKON 25%'
-        },
-        {
-            id: '3',
-            name: 'Jus Alpukat Jumbo',
-            price: 12000,
-            originalPrice: 15000,
-            discount: 20,
-            image: '',
-            category: 'Drinks',
-            description: 'Jus alpukat dengan susu coklat - DISKON 20%'
-        },
-        {
-            id: '4',
-            name: 'Kentang Goreng Special',
-            price: 12000,
-            originalPrice: 15000,
-            discount: 20,
-            image: '',
-            category: 'Snack',
-            description: 'Kentang goreng crispy dengan saus - DISKON 20%'
-        }
-    ];
 
     const renderPromotionCard = ({ item }: { item: PromoItem }) => (
         <View style={styles.promoCard}>
@@ -201,7 +95,7 @@ export default function PromoPage() {
             {/* Content */}
             {activeTab === 'promotions' ? (
                 <FlatList
-                    data={promotions}
+                    data={PROMOTIONS}
                     keyExtractor={(item) => item.id}
                     renderItem={renderPromotionCard}
                     contentContainerStyle={styles.listContent}
@@ -215,7 +109,7 @@ export default function PromoPage() {
                 />
             ) : (
                 <FlatList
-                    data={promoMenus}
+                    data={PROMO_MENUS}
                     keyExtractor={(item) => item.id}
                     renderItem={renderMenuCard}
                     contentContainerStyle={styles.listContent}

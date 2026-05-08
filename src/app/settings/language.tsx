@@ -1,15 +1,10 @@
 import { useAppNavigation } from '@/src/hooks/useAppNavigation';
 import { theme } from '@/src/theme';
+import { LANGUAGES } from '@/src/data/mockData';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const LANGUAGES = [
-    { id: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩', isDefault: true },
-    { id: 'en', name: 'English', flag: '🇬🇧' },
-    { id: 'zh', name: '中文', flag: '🇨🇳' },
-    { id: 'ja', name: '日本語', flag: '🇯🇵' },
-];
 
 export default function LanguageScreen() {
     const { replaceTo } = useAppNavigation();

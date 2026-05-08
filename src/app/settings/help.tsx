@@ -1,14 +1,9 @@
 import { useAppNavigation } from '@/src/hooks/useAppNavigation';
 import { theme } from '@/src/theme';
+import { FAQ } from '@/src/data/mockData';
 import { Ionicons } from '@expo/vector-icons';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const FAQ = [
-    { q: 'Bagaimana cara memesan?', a: 'Pilih menu favorit Anda, tambahkan ke keranjang, lalu klik "Pesan Sekarang". Ikuti petunjuk pembayaran.' },
-    { q: 'Berapa lama estimasi pengiriman?', a: 'Estimasi pengiriman sekitar 15 menit, tergantung lokasi Anda.' },
-    { q: 'Bagaimana cara membatalkan pesanan?', a: 'Hubungi customer service kami melalui WhatsApp atau email untuk pembatalan pesanan.' },
-    { q: 'Metode pembayaran apa saja yang tersedia?', a: 'Kami menerima pembayaran melalui transfer bank, e-wallet (GoPay, OVO, Dana), dan COD.' },
-];
 
 export default function HelpScreen() {
     const { replaceTo } = useAppNavigation();
@@ -43,8 +38,8 @@ export default function HelpScreen() {
                     <Text style={styles.sectionTitle}>Pertanyaan Umum (FAQ)</Text>
                     {FAQ.map((item, index) => (
                         <View key={index} style={[styles.faqItem, index === FAQ.length - 1 && { borderBottomWidth: 0 }]}>
-                            <Text style={styles.faqQuestion}>{item.q}</Text>
-                            <Text style={styles.faqAnswer}>{item.a}</Text>
+                            <Text style={styles.faqQuestion}>{item.question}</Text>
+                            <Text style={styles.faqAnswer}>{item.answer}</Text>
                         </View>
                     ))}
                 </View>

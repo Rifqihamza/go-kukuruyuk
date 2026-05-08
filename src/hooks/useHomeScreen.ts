@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react';
-import { USER_DATA, MENU_ITEMS, ORDER_HISTORY } from '../data/mockData';
-import { Order, Product, QuickAccessItem, User } from '../types';
-
-const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
-    { id: 'qa-1', name: 'Delivery', icon: 'truck-delivery', urlTo: '/delivery' },
-    { id: 'qa-2', name: 'Menu', icon: 'food', urlTo: '/menu' },
-    { id: 'qa-3', name: 'Promo', icon: 'tag-multiple', urlTo: '/promo' },
-    { id: 'qa-4', name: 'Activity', icon: 'history', urlTo: '/history' },
-];
+import { MENU_ITEMS, ORDER_HISTORY } from '../data/mockData';
+import { QUICK_ACCESS_ITEMS } from '../constant';
+import { Order, Product, User } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 export function useHomeScreen() {
+    const { user: authUser } = useAuth();
     const [searchText, setSearchText] = useState('');
     const [products, setProducts] = useState<Product[]>([]);
     const [activeOrders, setActiveOrders] = useState<Order[]>([]);
@@ -17,7 +13,8 @@ export function useHomeScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const user: User = USER_DATA[0] || { id: 1, username: 'Jhon', fullname: 'Jhon Doe', email: 'jhondoe@gmail.com', password: 'jhon123', avatarImg: '' };
+    // Use authenticated user or fallback to default
+    const user: User = authUser || { id: 1, username: 'Guest', fullname: 'Guest User', email: '', password: '', avatarImg: '' };
 
     useEffect(() => {
         loadData();

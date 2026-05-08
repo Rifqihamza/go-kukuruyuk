@@ -26,7 +26,7 @@ export default function Header({
                 </TouchableOpacity>
                 <View style={styles.title}>
                     <Text style={styles.greeting}>{greeting}</Text>
-                    <Text style={styles.userName}>{userName}</Text>
+                    <Text style={styles.userName}>{userName.split(' ')[0]}</Text>
                 </View>
             </View>
             <View style={styles.actionButtons}>

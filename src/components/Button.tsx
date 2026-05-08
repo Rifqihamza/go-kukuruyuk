@@ -12,7 +12,7 @@ interface Props {
     style?: ViewStyle;
 }
 
-export default function Button({
+const Button = React.memo<Props>(({
     title,
     onPress,
     variant = 'primary',
@@ -20,7 +20,7 @@ export default function Button({
     disabled = false,
     loading = false,
     style,
-}: Props) {
+}) => {
     const buttonStyles = [
         styles.base,
         styles[`variant_${variant}`],
@@ -53,7 +53,11 @@ export default function Button({
             )}
         </TouchableOpacity>
     );
-}
+});
+
+Button.displayName = 'Button';
+
+export default Button;
 
 const styles = StyleSheet.create({
     base: {

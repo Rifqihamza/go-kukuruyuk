@@ -9,7 +9,7 @@ interface Props {
     onPress: (product: Product) => void;
 }
 
-export const ProductCard = ({ product, onPress }: Props) => (
+export const ProductCard = React.memo<Props>(({ product, onPress }) => (
     <TouchableOpacity
         style={styles.card}
         onPress={() => onPress(product)}
@@ -37,7 +37,9 @@ export const ProductCard = ({ product, onPress }: Props) => (
             <Text style={styles.price}>Rp {product.price.toLocaleString('id-ID')}</Text>
         </View>
     </TouchableOpacity>
-);
+));
+
+ProductCard.displayName = 'ProductCard';
 
 const styles = StyleSheet.create({
     card: {

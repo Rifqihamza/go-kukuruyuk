@@ -1,22 +1,103 @@
 import Button from '@/src/components/Button';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useAppNavigation } from '@/src/hooks';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SecurityPage() {
-    const router = useRouter();
     const [biometricEnabled, setBiometricEnabled] = useState(false);
     const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+    const { replaceTo, navigateTo } = useAppNavigation();
+    const { signOut } = useAuth();
 
-    const navigateBack = () => router.back();
+    // Fungsi untuk logout dari semua perangkat
+    const handleLogoutAllDevices = async () => {
+        Alert.alert(
+            'Logout dari Semua Perangkat',
+            'Tindakan ini akan mengeluarkan Anda dari semua perangkat yang sedang login. Apakah Anda yakin?',
+            [
+                {
+                    text: 'Batal',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Logout Semua',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            // Tampilkan loading indicator
+                            Alert.alert(
+                                'Proses Logout',
+                                'Sedang logout dari semua perangkat...',
+                                [{ text: 'OK' }],
+                                { cancelable: false }
+                            );
+
+                            // Panggil API untuk logout dari semua perangkat
+                            // Di mock, kita hanya clear local session
+                            await signOut();
+
+                            // Di production, panggil endpoint logout semua perangkat
+                            // await api.post('/auth/logout-all-devices');
+
+                            // Clear semua storage
+                            await AsyncStorage.removeItem('auth_token');
+                            await AsyncStorage.removeItem('user_data');
+                            await AsyncStorage.removeItem('refresh_token');
+                            await AsyncStorage.removeItem('device_id');
+
+                            // Navigasi ke halaman login
+                            navigateTo('/(auth)/sign-page');
+
+                            // Tampilkan notifikasi sukses
+                            Alert.alert(
+                                'Berhasil',
+                                'Anda telah logout dari semua perangkat',
+                                [{ text: 'OK' }]
+                            );
+                        } catch (error) {
+                            console.error('Force logout error:', error);
+                            Alert.alert(
+                                'Error',
+                                'Gagal logout dari semua perangkat. Silakan coba lagi.',
+                                [{ text: 'OK' }]
+                            );
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
+    const handleClearLocalData = () => {
+        Alert.alert(
+            'Hapus Data Lokal',
+            'Ini akan menghapus semua cache dan data sementara aplikasi di perangkat ini. Anda harus login kembali.',
+            [
+                { text: 'Batal', style: 'cancel' },
+                {
+                    text: 'Hapus',
+                    style: 'destructive',
+                    onPress: async () => {
+                        await signOut();
+                        // Di sini bisa ditambahkan pembersihan AsyncStorage lainnya jika perlu
+                        navigateTo('/(auth)/sign-page');
+                    }
+                }
+            ],
+            { cancelable: true }
+        );
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={navigateBack} style={styles.backButton}>
+                <TouchableOpacity onPress={() => replaceTo('../../(tabs)/settings')} style={styles.backButton}>
                     <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Keamanan</Text>
@@ -30,7 +111,7 @@ export default function SecurityPage() {
                     <View style={styles.sectionContent}>
                         <TouchableOpacity
                             style={styles.settingRow}
-                            onPress={() => router.push('/settings/security/change-password' as any)}
+                            onPress={() => navigateTo('/settings/sub-security/change-password' as any)}
                         >
                             <View style={styles.settingLeft}>
                                 <Ionicons name="lock-closed-outline" size={22} color={theme.colors.primary} />
@@ -41,7 +122,7 @@ export default function SecurityPage() {
 
                         <TouchableOpacity
                             style={styles.settingRow}
-                            onPress={() => router.push('/settings/security/biometric' as any)}
+                            onPress={() => navigateTo('/settings/sub-security/biometric' as any)}
                         >
                             <View style={styles.settingLeft}>
                                 <Ionicons name="finger-print-outline" size={22} color={theme.colors.primary} />
@@ -60,7 +141,7 @@ export default function SecurityPage() {
 
                         <TouchableOpacity
                             style={styles.settingRow}
-                            onPress={() => router.push('/settings/security/two-factor' as any)}
+                            onPress={() => navigateTo('/settings/sub-security/two-factor' as any)}
                         >
                             <View style={styles.settingLeft}>
                                 <Ionicons name="shield-checkmark-outline" size={22} color={theme.colors.primary} />
@@ -83,7 +164,10 @@ export default function SecurityPage() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Privasi & Data</Text>
                     <View style={styles.sectionContent}>
-                        <TouchableOpacity style={styles.settingRow}>
+                        <TouchableOpacity
+                            style={styles.settingRow}
+                            onPress={() => navigateTo('/settings/sub-security/personal-data' as any)}
+                        >
                             <View style={styles.settingLeft}>
                                 <Ionicons name="eye-off-outline" size={22} color={theme.colors.primary} />
                                 <Text style={styles.settingLabel}>Data Pribadi</Text>
@@ -94,7 +178,10 @@ export default function SecurityPage() {
                             </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.settingRow}>
+                        <TouchableOpacity
+                            style={styles.settingRow}
+                            onPress={() => navigateTo('/settings/sub-security/download-data' as any)}
+                        >
                             <View style={styles.settingLeft}>
                                 <Ionicons name="download-outline" size={22} color={theme.colors.primary} />
                                 <Text style={styles.settingLabel}>Unduh Data</Text>
@@ -172,16 +259,26 @@ export default function SecurityPage() {
                     </View>
                 </View>
 
-                {/* Emergency Actions */}
                 <View style={styles.emergencySection}>
                     <Text style={styles.sectionTitle}>Aksi Darurat</Text>
-                    <Button
-                        title="Logout dari Semua Perangkat"
-                        onPress={() => { }}
-                        variant="primary"
-                        size="md"
-                        style={styles.emergencyButton}
-                    />
+                    <View style={styles.emergencyContainer}>
+                        <Button
+                            title="Logout dari Semua Perangkat"
+                            onPress={handleLogoutAllDevices}
+                            variant="primary"  // Gunakan variant danger jika ada
+                            size="md"
+                            style={styles.emergencyButton}
+                        />
+
+                        {/* Opsional: Tambahan tombol emergency lainnya */}
+                        <Button
+                            title="Hapus Data Lokal"
+                            onPress={handleClearLocalData}
+                            variant="secondary"
+                            size="md"
+                            style={styles.emergencyButton}
+                        />
+                    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -331,8 +428,12 @@ const styles = StyleSheet.create({
         marginTop: theme.spacing.lg,
         paddingHorizontal: theme.spacing.md,
     },
+    emergencyContainer: {
+        gap: theme.spacing.sm,
+    },
     emergencyButton: {
         backgroundColor: theme.colors.error,
         borderColor: theme.colors.error,
+        paddingVertical: theme.spacing.md
     },
 });

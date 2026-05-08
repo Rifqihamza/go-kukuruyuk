@@ -1,8 +1,61 @@
-import { Category, Order, Product, User, AppNotification } from "../types";
+import { AppNotification, Category, FAQItem, Language, ListCardPay, MenuItem, Order, PaymentMethod, Product, PromoItem, Transaction, User } from "../types";
 
 export const USER_DATA: User[] = [
-    { id: 1, username: 'Jhon', fullname: 'Jhon Doe', email: 'jhondoe@gmail.com', password: 'jhon123', avatarImg: '' }
+    {
+        id: 1,
+        role: 'customer',
+        username: 'Jhon',
+        fullname: 'Jhon Doe',
+        email: 'jhondoe@gmail.com',
+        password: 'jhon123',
+        avatarImg: '',
+        phone: '+6281234567890',
+        address: 'Jl. Sudirman No. 123, Jakarta',
+        created_at: new Date().toISOString(),
+        update_at: new Date().toISOString()
+    },
+    {
+        id: 2,
+        role: 'admin',
+        username: 'admin',
+        fullname: 'Administrator',
+        email: 'admin@kukuruyuk.com',
+        password: 'admin123',
+        avatarImg: '',
+        phone: '+6281234567891',
+        address: 'Jl. Thamrin No. 456, Jakarta',
+        created_at: new Date().toISOString(),
+        update_at: new Date().toISOString()
+    },
+    {
+        id: 3,
+        role: 'customer',
+        username: 'test',
+        fullname: 'Test User',
+        email: 'test@example.com',
+        password: 'test123',
+        avatarImg: '',
+        phone: '+6281234567892',
+        address: 'Jl. Gatot Subroto No. 789, Jakarta',
+        created_at: new Date().toISOString(),
+        update_at: new Date().toISOString()
+    },
+    {
+        id: 4,
+        role: 'merchant',
+        username: 'merchant',
+        fullname: 'Merchant Owner',
+        email: 'merchant@kukuruyuk.com',
+        password: 'merchant123',
+        avatarImg: '',
+        phone: '+6281234567893',
+        address: 'Jl. Malioboro No. 321, Yogyakarta',
+        created_at: new Date().toISOString(),
+        update_at: new Date().toISOString()
+    }
 ];
+
+export const USER_BALANCE = 75000;
 
 export const CATEGORIES: Category[] = [
     { id: 'cat-1', name: 'Main Course', icon: 'food', slug: 'main-course' },
@@ -61,5 +114,106 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
         message: 'Aplikasi telah diperbaiki untuk performa yang lebih baik',
         isRead: false,
         createdAt: '2026-05-05T09:15:00Z'
+    }
+];
+
+// Payment related mock data
+export const PAYMENT_METHODS: PaymentMethod[] = [
+    { id: '1', type: 'Kartu Kredit / Debit', number: '**** **** **** 1234', icon: 'card-outline' },
+    { id: '2', type: 'GoPay', number: '081234567890', icon: 'wallet-outline' },
+    { id: '3', type: 'OVO', number: '081234567890', icon: 'phone-portrait-outline' },
+];
+
+export const RECENT_TRANSACTIONS: Transaction[] = [
+    { id: '1', description: 'Top Up Saldo', amount: '+50.000', date: '2026-05-06', type: 'credit' },
+    { id: '2', description: 'Pembayaran Ayam Geprek', amount: '-18.000', date: '2026-05-05', type: 'debit' },
+    { id: '3', description: 'Pembayaran Nasi Goreng', amount: '-22.000', date: '2026-05-04', type: 'debit' },
+];
+
+export const ALL_TRANSACTIONS: Transaction[] = [
+    { id: '1', description: 'Top Up Saldo', amount: '+50.000', date: '2026-05-06', type: 'credit', time: '14:30' },
+    { id: '2', description: 'Pembayaran Ayam Geprek', amount: '-18.000', date: '2026-05-05', type: 'debit', time: '12:15' },
+    { id: '3', description: 'Pembayaran Nasi Goreng', amount: '-22.000', date: '2026-05-04', type: 'debit', time: '19:45' },
+    { id: '4', description: 'Top Up Saldo', amount: '+25.000', date: '2026-05-03', type: 'credit', time: '10:20' },
+    { id: '5', description: 'Pembayaran Mie Ayam', amount: '-15.000', date: '2026-05-02', type: 'debit', time: '13:10' },
+    { id: '6', description: 'Transfer ke Teman', amount: '-30.000', date: '2026-05-01', type: 'debit', time: '16:30' },
+    { id: '7', description: 'Top Up Saldo', amount: '+75.000', date: '2026-04-30', type: 'credit', time: '09:15' },
+    { id: '8', description: 'Pembayaran Kopi', amount: '-12.000', date: '2026-04-29', type: 'debit', time: '11:45' },
+    { id: '9', description: 'Pembayaran Bakso', amount: '-20.000', date: '2026-04-28', type: 'debit', time: '18:20' },
+    { id: '10', description: 'Top Up Saldo', amount: '+40.000', date: '2026-04-27', type: 'credit', time: '15:30' },
+    { id: '11', description: 'Pembayaran Martabak', amount: '-25.000', date: '2026-04-26', type: 'debit', time: '20:15' },
+    { id: '12', description: 'Transfer dari Bank', amount: '+100.000', date: '2026-04-25', type: 'credit', time: '08:00' },
+];
+
+export const LIST_CARD_PAYMENT: ListCardPay[] = [
+    { id: '1', name: 'Kartu Kredit / Debit', icon: 'card-outline', type: 'bank' },
+    { id: '2', name: 'GoPay', icon: 'wallet-outline', type: 'ewallet' },
+    { id: '3', name: 'OVO', icon: 'phone-portrait-outline', type: 'ewallet' },
+    { id: '4', name: 'Dana', icon: 'cash-outline', type: 'ewallet' },
+    { id: '5', name: 'ShopeePay', icon: 'basket-outline', type: 'ewallet' },
+];
+
+// Promo related mock data
+export const PROMOTIONS: PromoItem[] = [
+    {
+        id: '1',
+        title: 'Diskon 20% Ayam Geprek',
+        description: 'Nikmati ayam geprek dengan diskon 20%',
+        discount: '20%',
+        image: '',
+        validUntil: '2026-05-15'
+    },
+    {
+        id: '2',
+        title: 'Buy 1 Get 1 Free',
+        description: 'Beli 1 minuman gratis 1 minuman',
+        discount: '50%',
+        image: '',
+        validUntil: '2026-05-20'
+    },
+    {
+        id: '3',
+        title: 'Free Delivery',
+        description: 'Gratis ongkir untuk pesanan di atas 50rb',
+        discount: 'Gratis',
+        image: '',
+        validUntil: '2026-05-25'
+    }
+];
+
+export const PROMO_MENUS: MenuItem[] = [
+    { id: '1', name: 'Ayam Geprek Special', price: 14400, image: '', category: 'Main Course', isAvailable: true },
+    { id: '2', name: 'Es Teh Jumbo', price: 7500, image: '', category: 'Drinks', isAvailable: true },
+    { id: '3', name: 'Nasi Goreng Promo', price: 17600, image: '', category: 'Main Course', isAvailable: true },
+];
+
+// Settings related mock data
+export const LANGUAGES: Language[] = [
+    { id: 'id', name: 'Bahasa Indonesia', code: 'id', flag: '🇮🇩', isDefault: true },
+    { id: 'en', name: 'English', code: 'en', flag: '🇬🇧' },
+    { id: 'zh', name: '中文', code: 'zh', flag: '🇨🇳' },
+    { id: 'ja', name: '日本語', code: 'ja', flag: '🇯🇵' },
+];
+
+export const FAQ: FAQItem[] = [
+    {
+        id: '1',
+        question: 'Bagaimana cara memesan?',
+        answer: 'Pilih menu favorit Anda, tambahkan ke keranjang, lalu klik "Pesan Sekarang". Ikuti petunjuk pembayaran.'
+    },
+    {
+        id: '2',
+        question: 'Berapa lama estimasi pengiriman?',
+        answer: 'Estimasi pengiriman sekitar 15 menit, tergantung lokasi Anda.'
+    },
+    {
+        id: '3',
+        question: 'Bagaimana cara membatalkan pesanan?',
+        answer: 'Hubungi customer service kami melalui WhatsApp atau email untuk pembatalan pesanan.'
+    },
+    {
+        id: '4',
+        question: 'Metode pembayaran apa saja yang tersedia?',
+        answer: 'Kami menerima pembayaran melalui transfer bank, e-wallet (GoPay, OVO, Dana), dan COD.'
     }
 ];

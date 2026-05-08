@@ -1,8 +1,10 @@
 import Button from '@/src/components/Button';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { theme } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
+    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -13,12 +15,10 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/src/contexts/AuthContext';
-import { useRouter } from 'expo-router';
 
 type AuthMode = 'login' | 'register';
 
-export default function LoginScreen() {
+export default function SignPage() {
     const [mode, setMode] = useState<AuthMode>('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -26,7 +26,6 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const { signIn, signUp } = useAuth();
-    const router = useRouter();
 
     const handleSubmit = async () => {
         setError('');
@@ -54,18 +53,14 @@ export default function LoginScreen() {
                 const result = await signIn(email, password);
                 if (result.error) {
                     setError(result.error);
-                } else {
-                    // Successfully logged in, redirect to home
-                    router.replace('/(tabs)');
                 }
+                // Tidak perlu router.replace karena ProtectedRoute akan otomatis redirect
             } else {
                 const result = await signUp(email, password, fullname);
                 if (result.error) {
                     setError(result.error);
-                } else {
-                    // Successfully registered, redirect to home
-                    router.replace('/(tabs)');
                 }
+                // Tidak perlu router.replace karena ProtectedRoute akan otomatis redirect
             }
         } catch {
             setError('Terjadi kesalahan. Silakan coba lagi.');
@@ -73,7 +68,6 @@ export default function LoginScreen() {
             setLoading(false);
         }
     };
-
     return (
         <SafeAreaView style={styles.container}>
             <KeyboardAvoidingView
@@ -87,7 +81,11 @@ export default function LoginScreen() {
                     {/* Logo & Title */}
                     <View style={styles.headerSection}>
                         <View style={styles.logoContainer}>
-                            <Ionicons name="fast-food" size={48} color={theme.colors.textLight} />
+                            <Image
+                                source={require('@/src/assets/images/icon.png')}
+                                style={styles.logoImage}
+                                resizeMode="contain"
+                            />
                         </View>
                         <Text style={styles.appName}>Go Kukuruyuk</Text>
                         <Text style={styles.tagline}>
@@ -190,18 +188,18 @@ const styles = StyleSheet.create({
         marginBottom: theme.spacing.xl,
     },
     logoContainer: {
-        width: 96,
-        height: 96,
+        width: 250,
+        height: 250,
         borderRadius: theme.borderRadius.full,
-        backgroundColor: theme.colors.primary,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: theme.spacing.md,
-        shadowColor: theme.colors.primary,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-        elevation: 8,
+        overflow: 'hidden',
+    },
+    logoImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain'
     },
     appName: {
         fontSize: theme.typography.fontSize.xxl,

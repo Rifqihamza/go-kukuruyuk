@@ -105,7 +105,7 @@ export default function FormPayment() {
     return (
         <SafeAreaView style={style.container}>
             <View style={style.backButton}>
-                <TouchableOpacity onPress={() => goBack('/settings/payments/list-payment')}>
+                <TouchableOpacity onPress={() => goBack('./list-payment.tsx')}>
                     <Ionicons name="chevron-back" size={30} />
                 </TouchableOpacity>
                 <Text style={style.backButtonTitle}>

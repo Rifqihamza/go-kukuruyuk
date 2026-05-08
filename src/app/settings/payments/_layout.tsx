@@ -24,6 +24,20 @@ export default function PaymentsLayout() {
                     headerShown: false
                 }}
             />
+            <Stack.Screen
+                name="topup"
+                options={{
+                    title: "Top Up Saldo",
+                    headerShown: false
+                }}
+            />
+            <Stack.Screen
+                name="history-payment"
+                options={{
+                    title: "Riwayat Transaksi",
+                    headerShown: false
+                }}
+            />
         </Stack>
     );
 }

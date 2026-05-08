@@ -1,16 +1,17 @@
 import Header from '@/src/components/Header';
 import { ProductCard } from '@/src/components/ProductCard';
 import QuickAccess from '@/src/components/QuickAccess';
-import { useHomeScreen } from '@/src/hooks/useHomeScreen'; // Hook ini akan kita update di bawah
+import { USER_BALANCE } from '@/src/data/mockData';
+import { useAppNavigation } from '@/src/hooks/useAppNavigation';
+import { useHomeScreen } from '@/src/hooks/useHomeScreen';
 import { theme } from '@/src/theme';
 import { Product } from '@/src/types';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 export default function HomeScreen() {
-    const router = useRouter();
+
+    const { navigateTo } = useAppNavigation()
     const {
         user,
         activeOrders,
@@ -23,12 +24,24 @@ export default function HomeScreen() {
     } = useHomeScreen();
 
     const handleProductPress = (product: Product) => {
-        router.push(`/product/${product.id}` as any);
+        navigateTo(`/product/${product.id}` as any);
     };
 
     const renderHeader = () => (
         <View>
-            <Header userName={user.fullname} greeting="Selamat Datang" />
+            <Header userName={user.fullname} greeting="Hallo! Selamat Datang" />
+            <View style={styles.balanceCard}>
+                <View>
+                    <View style={styles.balanceHeader}>
+                        <Ionicons name="wallet" size={24} color={theme.colors.background} />
+                        <Text style={styles.balanceTitle}>Saldo Kamu</Text>
+                    </View>
+                    <Text style={styles.balanceAmount}>Rp {USER_BALANCE.toLocaleString('id-ID')}</Text>
+                </View>
+                <TouchableOpacity style={styles.topUpButton} onPress={() => navigateTo('/settings/payments/topup')}>
+                    <Ionicons name='add' size={20} color={theme.colors.primary} />
+                </TouchableOpacity>
+            </View>
 
             <View style={styles.deliveryEstimationCard}>
                 <Text style={styles.textWhiteBold}>Estimasi Pengiriman</Text>
@@ -139,6 +152,49 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingBottom: theme.spacing.xxl,
+    },
+    balanceCard: {
+        backgroundColor: theme.colors.primary,
+        paddingVertical: theme.spacing.md,
+        paddingHorizontal: theme.spacing.lg,
+        borderRadius: theme.borderRadius.lg,
+        marginHorizontal: theme.spacing.md,
+        marginTop: theme.spacing.sm,
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: 'auto'
+    },
+    balanceHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: theme.spacing.sm,
+    },
+    balanceTitle: {
+        color: '#FFFFFF',
+        fontSize: theme.typography.fontSize.md,
+        marginLeft: theme.spacing.sm,
+    },
+    balanceAmount: {
+        color: '#FFFFFF',
+        fontSize: theme.typography.fontSize.xxl,
+        fontWeight: theme.typography.fontWeight.bold,
+        marginBottom: theme.spacing.md,
+    },
+    topUpButton: {
+        backgroundColor: '#FFFFFF',
+        padding: theme.spacing.md,
+
+        borderRadius: theme.borderRadius.xl,
+    },
+    topUpButtonText: {
+        color: theme.colors.primary,
+        fontWeight: theme.typography.fontWeight.bold,
     },
     deliveryEstimationCard: {
         backgroundColor: theme.colors.primary,

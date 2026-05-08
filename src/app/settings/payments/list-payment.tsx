@@ -1,37 +1,19 @@
+import { LIST_CARD_PAYMENT } from "@/src/data/mockData";
 import { useAppNavigation } from "@/src/hooks/useAppNavigation";
 import { theme } from "@/src/theme";
+import { ListCardPay } from "@/src/types";
 import { Ionicons } from "@expo/vector-icons";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface listCardPay {
-    id: string;
-    nameCard: string;
-    type: 'bank' | 'ewallet';
-}
-
 export default function ListPayment() {
-    const { goBack, replaceTo } = useAppNavigation() // Ganti replaceTo dengan navigate
+    const { goBack, navigateTo } = useAppNavigation() // Ganti replaceTo dengan navigate
 
-    const listCardPayment: listCardPay[] = [
-        { id: 'card-01', nameCard: 'Bank BCA', type: 'bank' },
-        { id: 'card-02', nameCard: 'Bank BNI', type: 'bank' },
-        { id: 'card-03', nameCard: 'Bank BRI', type: 'bank' },
-        { id: 'card-04', nameCard: 'Bank Mandiri', type: 'bank' },
-        { id: 'card-05', nameCard: 'Bank JAGO', type: 'bank' },
-        { id: 'card-06', nameCard: 'Seabank', type: 'bank' },
-        { id: 'card-07', nameCard: 'Bank BSI', type: 'bank' },
-        { id: 'card-08', nameCard: 'Gopay', type: 'ewallet' },
-        { id: 'card-09', nameCard: 'DANA', type: 'ewallet' },
-        { id: 'card-10', nameCard: 'Shopeepay', type: 'ewallet' },
-        { id: 'card-11', nameCard: 'OVO', type: 'ewallet' },
-    ]
-
-    const handleCardPress = (item: listCardPay) => {
+    const handleCardPress = (item: ListCardPay) => {
         // Navigasi ke form-payment dengan parameter
-        replaceTo('/settings/payments/form-payment', {
+        navigateTo('/settings/payments/form-payment', {
             paymentId: item.id,
-            paymentName: item.nameCard,
+            paymentName: item.name,
             paymentType: item.type
         })
     }
@@ -46,7 +28,7 @@ export default function ListPayment() {
             </View>
 
             <FlatList
-                data={listCardPayment}
+                data={LIST_CARD_PAYMENT}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity
@@ -57,7 +39,7 @@ export default function ListPayment() {
                             name={item.type === 'bank' ? "card" : "wallet"}
                             size={24}
                         />
-                        <Text style={style.listItemText}>{item.nameCard}</Text>
+                        <Text style={style.listItemText}>{item.name}</Text>
                     </TouchableOpacity>
                 )}
             />
@@ -78,7 +60,7 @@ const style = StyleSheet.create({
         marginBottom: 20,
     },
     backButtonTitle: {
-        fontSize: theme.typography.fontSize.lg,
+        fontSize: theme.typography.fontSize.md,
         fontWeight: 'bold',
     },
     listItem: {
