@@ -3,11 +3,11 @@ import Search from '@/src/components/Search';
 import { categoryService, productService } from '@/src/lib/database';
 import { theme } from '@/src/theme';
 import { Category, Product } from '@/src/types';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 export default function MenuPage() {
     const router = useRouter();
     const params = useLocalSearchParams<{ productId?: string }>();
@@ -165,6 +165,17 @@ export default function MenuPage() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Ionicons name='fast-food' size={26} />
+                    <Text style={styles.headerTitle}>Menu</Text>
+                </View>
+                {products.length > 0 && (
+                    <Text style={styles.headerSubtitle}>
+                        {products.length} pesanan
+                    </Text>
+                )}
+            </View>
             <FlatList
                 ref={flatListRef}
                 data={filteredMenu}
@@ -202,6 +213,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: theme.spacing.sm,
         padding: theme.spacing.xl,
+    },
+    header: {
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.md,
+        backgroundColor: theme.colors.surface,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+    },
+    headerTitle: {
+        fontSize: theme.typography.fontSize.lg,
+        fontWeight: theme.typography.fontWeight.bold,
+        color: theme.colors.text,
+    },
+    headerSubtitle: {
+        fontSize: theme.typography.fontSize.sm,
+        color: theme.colors.textSecondary,
+        marginTop: 2,
     },
     loadingText: {
         fontSize: theme.typography.fontSize.sm,

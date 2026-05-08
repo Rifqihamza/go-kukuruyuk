@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { orderService, productService, settingsService } from '../lib/database';
-import { Order, Product, QuickAccessItem } from '../types';
+import { USER_DATA, MENU_ITEMS, ORDER_HISTORY } from '../data/mockData';
+import { Order, Product, QuickAccessItem, User } from '../types';
 
 const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
     { id: 'qa-1', name: 'Delivery', icon: 'truck-delivery', urlTo: '/delivery' },
@@ -17,7 +17,7 @@ export function useHomeScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const user = { fullname: 'Jhon Doe', username: 'jhon' };
+    const user: User = USER_DATA[0] || { id: 1, username: 'Jhon', fullname: 'Jhon Doe', email: 'jhondoe@gmail.com', password: 'jhon123', avatarImg: '' };
 
     useEffect(() => {
         loadData();
@@ -28,25 +28,22 @@ export function useHomeScreen() {
         setError(null);
 
         try {
-            const [fetchedProducts, fetchedOrders, estimation] = await Promise.all([
-                productService.getAll(),
-                orderService.getAll(),
-                settingsService.get('delivery_estimation_minutes'),
-            ]);
+            // Simulate async loading with static data
+            await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay to simulate loading
 
-            setProducts(fetchedProducts);
+            setProducts(MENU_ITEMS);
 
-            // 1. Filter pesanan yang masih berjalan (Pending atau In Transit)
-            const active = fetchedOrders.filter(order =>
-                (order.status as string) === 'Pending' || (order.status as string) === 'In Transit'
+            // 1. Filter pesanan yang masih berjalan (Pending)
+            const active = ORDER_HISTORY.filter((order: Order) =>
+                order.status === 'Pending'
             );
 
             setActiveOrders(active);
 
             // 2. LOGIC BARU: Cek apakah ada pesanan aktif
             if (active.length > 0) {
-                // Jika ada pesanan, gunakan estimasi dari database
-                setDeliveryEstimation(estimation + ' Menit' || '0 Menit');
+                // Jika ada pesanan, gunakan estimasi dari database (default 15 menit jika tidak ada)
+                setDeliveryEstimation('15 Menit'); // Using default since no settings in mockData
             } else {
                 // Jika tidak ada pesanan, ubah teksnya
                 setDeliveryEstimation('Belum ada pesanan');

@@ -66,39 +66,17 @@ export default function SettingPage() {
     const router = useRouter();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-    // const [isSeeding, setIsSeeding] = useState(false);
     const user = { fullname: 'Jhon Doe', email: 'jhondoe@gmail.com' };
-
-    // const handleSeedData = async () => {
-    //     Alert.alert(
-    //         'Seed Data ke Supabase',
-    //         'Ini akan mengirim semua data menu, kategori, dan setting default ke database Supabase. Lanjutkan?',
-    //         [
-    //             { text: 'Batal', style: 'cancel' },
-    //             {
-    //                 text: 'Ya, Seed!',
-    //                 onPress: async () => {
-    //                     setIsSeeding(true);
-    //                     const result = await seedService.seedAll();
-    //                     setIsSeeding(false);
-    //                     Alert.alert(
-    //                         result.success ? '✅ Berhasil' : '❌ Gagal',
-    //                         result.message
-    //                     );
-    //                 },
-    //             },
-    //         ]
-    //     );
-    // };
-
     const navigateTo = (path: string) => (router as any).push(path);
 
     const handleLogout = () => {
+        console.log("✅ Anda Berhasil Keluar")
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
+                <Ionicons name='settings' size={26} />
                 <Text style={styles.headerTitle}>Pengaturan</Text>
             </View>
 
@@ -113,7 +91,7 @@ export default function SettingPage() {
                             <Text style={styles.profileName}>{user.fullname}</Text>
                             <Text style={styles.profileEmail}>{user.email}</Text>
                         </View>
-                        <TouchableOpacity style={styles.editButton}>
+                        <TouchableOpacity onPress={() => navigateTo('../settings/edit-profile')} style={styles.editButton}>
                             <Ionicons name="create-outline" size={20} color={theme.colors.primary} />
                         </TouchableOpacity>
                     </View>
@@ -164,40 +142,10 @@ export default function SettingPage() {
                         <SettingRow
                             icon="card-outline"
                             label="Pembayaran"
-                            onPress={() => navigateTo('/settings/payment')}
+                            onPress={() => navigateTo('/settings/payments/payment')}
                         />
                     </View>
                 </View>
-
-                {/* Database Section */}
-                {/* <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Database</Text>
-                    <View style={styles.sectionContent}>
-                        <TouchableOpacity
-                            style={styles.seedRow}
-                            onPress={handleSeedData}
-                            disabled={isSeeding}
-                            activeOpacity={0.6}
-                        >
-                            <View style={styles.settingLeft}>
-                                <Ionicons name="cloud-upload-outline" size={22} color={theme.colors.success} />
-                                <View>
-                                    <Text style={styles.settingLabel}>
-                                        {isSeeding ? 'Mengirim data...' : 'Seed Data ke Database'}
-                                    </Text>
-                                    <Text style={styles.seedSubtitle}>
-                                        Push semua menu, kategori & setting ke Supabase
-                                    </Text>
-                                </View>
-                            </View>
-                            {isSeeding ? (
-                                <Text style={styles.seedingText}>Memproses...</Text>
-                            ) : (
-                                <Ionicons name="chevron-forward" size={20} color={theme.colors.disabled} />
-                            )}
-                        </TouchableOpacity>
-                    </View>
-                </View> */}
 
                 {/* About */}
                 <View style={styles.section}>
@@ -247,9 +195,12 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.surface,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center'
     },
     headerTitle: {
-        fontSize: theme.typography.fontSize.xl,
+        fontSize: theme.typography.fontSize.lg,
         fontWeight: theme.typography.fontWeight.bold,
         color: theme.colors.text,
     },

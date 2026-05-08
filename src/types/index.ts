@@ -43,6 +43,14 @@ export interface User {
     address?: string;
 }
 
+export interface AppNotification {
+    id: string;
+    title: string;
+    message: string;
+    isRead: boolean;
+    createdAt: string;
+}
+
 export interface CartItem {
     productId: string;
     productName: string;

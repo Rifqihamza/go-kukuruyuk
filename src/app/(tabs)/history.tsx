@@ -1,7 +1,7 @@
 import { orderService } from '@/src/lib/database';
 import { theme } from '@/src/theme';
 import { Order } from '@/src/types';
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -110,7 +110,10 @@ export default function HistoryPage() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Riwayat Pesanan</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <AntDesign name='history' size={26} />
+                    <Text style={styles.headerTitle}>Riwayat Pesanan</Text>
+                </View>
                 {orders.length > 0 && (
                     <Text style={styles.headerSubtitle}>
                         {orders.length} pesanan
@@ -178,7 +181,7 @@ const styles = StyleSheet.create({
         borderBottomColor: theme.colors.border,
     },
     headerTitle: {
-        fontSize: theme.typography.fontSize.xl,
+        fontSize: theme.typography.fontSize.lg,
         fontWeight: theme.typography.fontWeight.bold,
         color: theme.colors.text,
     },

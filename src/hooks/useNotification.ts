@@ -1,29 +1,43 @@
-import { supabase } from '@/src/lib/supabase';
 import { useEffect, useState } from 'react';
+import { MOCK_NOTIFICATIONS } from '@/src/data/mockData';
+import { AppNotification } from '../types';
 
 export const useNotifications = () => {
-    const [notifications, setNotifications] = useState<any[]>([]);
+    const [notifications, setNotifications] = useState<AppNotification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchNotifications = async () => {
         setIsLoading(true);
-        const { data, error } = await supabase
-            .from('notifications')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) console.error("Error fetching notifications:", error);
-        else setNotifications(data);
+        
+        // Simulate async loading with static data
+        await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay to simulate loading
+        
+        // Sort by createdAt descending (newest first)
+        const sortedNotifications = [...MOCK_NOTIFICATIONS].sort((a, b) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        
+        setNotifications(sortedNotifications);
         setIsLoading(false);
     };
 
     const markAsRead = async (id: string) => {
-        await supabase
-            .from('notifications')
-            .update({ is_read: true })
-            .eq('id', id);
-
-        fetchNotifications(); // Refresh data
+        // Update the mock data
+        const updatedNotifications = MOCK_NOTIFICATIONS.map(notification => 
+            notification.id === id 
+                ? { ...notification, isRead: true } 
+                : notification
+        );
+        
+        // Update state with sorted data
+        const sortedNotifications = [...updatedNotifications].sort((a, b) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        
+        setNotifications(sortedNotifications);
+        
+        // Refresh data after a short delay to simulate async update
+        setTimeout(fetchNotifications, 500);
     };
 
     useEffect(() => {

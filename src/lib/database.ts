@@ -38,12 +38,8 @@ const FALLBACK_ORDERS: Order[] = [
 
 // ============ UTILITY ============
 function isSupabaseConfigured(): boolean {
-    return Boolean(
-        process.env.EXPO_PUBLIC_SUPABASE_URL &&
-        process.env.EXPO_PUBLIC_SUPABASE_KEY &&
-        process.env.EXPO_PUBLIC_SUPABASE_URL !== '' &&
-        process.env.EXPO_PUBLIC_SUPABASE_KEY !== ''
-    );
+    // Always return false to use static fallback data
+    return false;
 }
 
 // ============ DATABASE INTERFACE ============

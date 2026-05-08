@@ -13,6 +13,8 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useRouter } from 'expo-router';
 
 type AuthMode = 'login' | 'register';
 
@@ -23,6 +25,8 @@ export default function LoginScreen() {
     const [fullname, setFullname] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const { signIn, signUp } = useAuth();
+    const router = useRouter();
 
     const handleSubmit = async () => {
         setError('');
@@ -45,11 +49,29 @@ export default function LoginScreen() {
         setLoading(true);
         setError('');
 
-        // Simulasi auth (akan terhubung ke Supabase saat credentials diisi)
-        setTimeout(() => {
-            setError('Silakan atur EXPO_PUBLIC_SUPABASE_URL dan EXPO_PUBLIC_SUPABASE_ANON_KEY di file .env untuk mengaktifkan autentikasi sesungguhnya.');
+        try {
+            if (mode === 'login') {
+                const result = await signIn(email, password);
+                if (result.error) {
+                    setError(result.error);
+                } else {
+                    // Successfully logged in, redirect to home
+                    router.replace('/(tabs)');
+                }
+            } else {
+                const result = await signUp(email, password, fullname);
+                if (result.error) {
+                    setError(result.error);
+                } else {
+                    // Successfully registered, redirect to home
+                    router.replace('/(tabs)');
+                }
+            }
+        } catch {
+            setError('Terjadi kesalahan. Silakan coba lagi.');
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
     };
 
     return (

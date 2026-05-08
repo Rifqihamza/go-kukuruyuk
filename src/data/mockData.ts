@@ -1,4 +1,4 @@
-import { Category, Order, Product, User } from "../types";
+import { Category, Order, Product, User, AppNotification } from "../types";
 
 export const USER_DATA: User[] = [
     { id: 1, username: 'Jhon', fullname: 'Jhon Doe', email: 'jhondoe@gmail.com', password: 'jhon123', avatarImg: '' }
@@ -38,4 +38,28 @@ export const ORDER_HISTORY: Order[] = [
         ]
     },
     { id: 'ORD003', orderName: 'Sate Ayam 10 Tusuk', date: '2026-05-03', total: 25000, status: 'Pending', items: [{ productId: '4', productName: 'Sate Ayam', quantity: 1, price: 25000 }] },
+];
+
+export const MOCK_NOTIFICATIONS: AppNotification[] = [
+    {
+        id: '1',
+        title: 'Promo Hari Ini',
+        message: 'Dapatkan diskon 20% untuk semua menu makanan utama',
+        isRead: false,
+        createdAt: '2026-05-07T08:00:00Z'
+    },
+    {
+        id: '2',
+        title: 'Pesanan Anda',
+        message: 'Pesanan Ayam Geprek telah selesai diambil',
+        isRead: true,
+        createdAt: '2026-05-06T14:30:00Z'
+    },
+    {
+        id: '3',
+        title: 'Pembaruan Sistem',
+        message: 'Aplikasi telah diperbaiki untuk performa yang lebih baik',
+        isRead: false,
+        createdAt: '2026-05-05T09:15:00Z'
+    }
 ];

@@ -1,36 +1,38 @@
-import { Session } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { AuthContextType } from '../types';
+import { USER_DATA } from '../data/mockData';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<any>(null);
-    const [session, setSession] = useState<Session | null>(null);
+    const [session, setSession] = useState<{ user: any } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setIsLoading(false);
-        });
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setIsLoading(false);
-        });
-
-        return () => subscription.unsubscribe();
+        // Simulate checking for existing session - in mock we just check state
+        // In a real app we might check async storage, but for mock we start with no session
+        setIsLoading(false);
     }, []);
 
     const signIn = async (email: string, password: string): Promise<{ error?: string }> => {
         try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) return { error: error.message };
-            return {};
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Find user in mock data
+            const foundUser = USER_DATA.find(user => 
+                user.email === email && user.password === password
+            );
+            
+            if (foundUser) {
+                // Set user and session in state (no persistence)
+                setUser(foundUser);
+                setSession({ user: foundUser });
+                return {};
+            } else {
+                return { error: 'Email atau password salah' };
+            }
         } catch (e: any) {
             return { error: e.message || 'Terjadi kesalahan saat login' };
         }
@@ -38,14 +40,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const signUp = async (email: string, password: string, fullname: string): Promise<{ error?: string }> => {
         try {
-            const { error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: { full_name: fullname },
-                },
-            });
-            if (error) return { error: error.message };
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Check if user already exists
+            const existingUser = USER_DATA.find(user => user.email === email);
+            if (existingUser) {
+                return { error: 'Email sudah terdaftar' };
+            }
+            
+            // Create new user (in a real app, this would be saved to database)
+            const newUser = {
+                id: USER_DATA.length + 1,
+                username: email.split('@')[0],
+                fullname: fullname,
+                email: email,
+                password: password,
+                avatarImg: ''
+            };
+            
+            // In a real app, we would save this to the database
+            // For now, we'll just set the user in state (no persistence)
+            setUser(newUser);
+            setSession({ user: newUser });
+            
             return {};
         } catch (e: any) {
             return { error: e.message || 'Terjadi kesalahan saat daftar' };
@@ -53,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const signOut = async () => {
-        await supabase.auth.signOut();
+        // Clear state
         setUser(null);
         setSession(null);
     };
