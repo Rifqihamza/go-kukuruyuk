@@ -4,54 +4,66 @@
     "slug": "go-kukuruyuk",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "/src/assets/images/icon.png",
+    "icon": "./src/assets/images/icon.png",
     "scheme": "gokukuruyuk",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "owner": "rifqihamzaa",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "icon": "/src/assets/images/icon.png",
+      "icon": "./src/assets/images/icon.png",
       "bundleIdentifier": "com.rifqihamzaa.gokukuruyuk",
+      "buildNumber": "1.0.0",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIViewControllerBasedStatusBarAppearance": true
       }
     },
     "android": {
+      "package": "com.rifqihamzaa.gokukuruyuk",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "/src/assets/images/android-icon-foreground.png",
-        "backgroundImage": "/src/assets/images/android-icon-background.png",
-        "monochromeImage": "/src/assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./src/assets/images/android-icon-foreground.png",
+        "backgroundImage": "./src/assets/images/android-icon-background.png",
+        "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "static",
-      "favicon": "/src/assets/images/icon.png"
+      "favicon": "./src/assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
+      "expo-secure-store",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/icon.png",
+          "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#E6F4FE",
           "dark": {
-            "backgroundColor": "#000000"
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#1a1a1a"
           }
         }
-      ],
-      "expo-secure-store"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {
-      "router": {},
+      "router": {
+        "origin": false
+      },
       "eas": {
         "projectId": "9b666dac-beca-4296-bd41-6e2536396a83"
       }
